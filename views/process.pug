@@ -23,6 +23,7 @@ block content
     li Webpack then uses respective loaders to know when it's dealing with HTML and CSS;
     li Files are built. Along with the files you generated, the original JS files you set as output are also created as they're part of the process, but theyll do nothing in them because their meaningful contents have been previously extracted.
   h3 Configuration
+  p: i OBS: On the actual repository used for this page, you might notice some differences between what is here and what's on the repo, namely "home" here being "index" there, and "build" folder giving way to "docs". That's just convenience for Github Pages, that asks for an "index.html" file on the "docs" folder.
   p Now that you know what is going on, it's time to figure out how you and Webpack will work together to achieve this result. Have a look at this configuration file (no need to stare at it until it stares back, I'll break it down bit by bit):
   pre: code.
     const path = require('path');
