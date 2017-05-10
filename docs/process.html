@@ -1,0 +1,82 @@
+<!DOCTYPE html><html><head><title>Webpack Works!</title><link rel="stylesheet" href="styles.css"></head><body><div class="container"><header><div class="headcontent"><img src="assets/wpicon.png" width="150px" height="150px"> <span>Webpack Works!</span></div></header><nav><ul><li><a href="index.html">Home </a></li><li><a href="webpack.html">Web..what?</a></li><li><a href="tools.html">The tools</a></li><li><a class="mainTab" href="process.html">The process</a></li></ul></nav><main><h2>Building a page with Webpack</h2><h3>Basics</h3><p>First, it's important to understand how Webpack works. Webpack is essentially a Javascript tool, so everything it consumes to produce your build, sooner or later, is thrown into Javascript before being spat out.</p><p>What it does is get one or more input files, follow each file's logical string of imports (be it CommonJS requires or ES6 imports), and then bundle those imports in a single file for each entry as output. Check this code, for example:</p><pre><code>// module.js
+module.exports = "Hello";
+
+// main.js
+let greeting = require("./module.js");
+console.log(greeting,"Warudo!");
+</code></pre><p>Usually, when working with multiple JS files in client-side, 1. You wouldn't use imports, since browsers don't support it, you would use globals or functions for communicating instead and 2. You'd have to include every single file in a &lt;script&gt; tag; no big deal in this example, but think about a large web app with tens of files, not only it would be uncomfortable having to insert all those script tags, but it would also mean you'd have tons of requests on your server, so an alternative would be welcome. Here, if you feed <code>main.js</code> to Webpack, it'll find <code>module.js</code> as well, since it's required by the former. Those two files are, then, bundled in a single JS file you can include in your page, so it solves all problems mentioned above.</p><p>However, it doesn't stop there: it can also individually work with every file imported, provided you have the necessary loader. In our case, even though we won't work with actual Javascript files, we can still manipulate our Less and Pug files to insert them in Javascript form before being bundled as CSS and HTML. The actual process goes as follows:</p><ol><li>All Pug files representing their own page are attached as input files, plus one Less file that imports all of the others (because you can make Webpack understand CSS imports as well, with the correct loader). Each is set to have a respective JS output;</li><li>Since we want HTML/CSS and not JS, files are separated from the Javascript they would end up in;</li><li>The preprocessors act on the files, converting them into valid HTML and CSS;</li><li>On the CSS side, there's an extra step to add vendor prefixes to the generated CSS;</li><li>Webpack then uses respective loaders to know when it's dealing with HTML and CSS;</li><li>Files are built. Along with the files you generated, the original JS files you set as output are also created as they're part of the process, but theyll do nothing in them because their meaningful contents have been previously extracted.</li></ol><h3>Configuration</h3><p>Now that you know what is going on, it's time to figure out how you and Webpack will work together to achieve this result. Have a look at this configuration file (no need to stare at it until it stares back, I'll break it down bit by bit):</p><pre><code>const path = require('path');
+const Extract = require('extract-text-webpack-plugin');
+
+const cssExtract = new Extract("styles.css");
+const htmlExtract = new Extract("[name].html");
+
+module.exports = {
+    entry: {
+        home: "./views/home.pug",
+        webpack: "./views/webpack.pug",
+        process: "./views/process.pug",
+        tools: "./views/tools.pug",
+        style: "./style/main.less",
+    },
+    output: {
+        path: path.join(__dirname,"build"),
+        filename: "[name].js",
+    },
+
+    module: {
+        rules: [
+            {
+                test: /\.less$/,
+                use: Extract.extract({
+                    use: ['css-loader','postcss-loader','less-loader'],
+                })
+            },
+            {
+                test: /\.pug$/,
+                use: Extract.extract({
+                    use: ['html-loader?attrs=false','pug-html-loader'],
+                }),
+            },
+        ],
+    },
+
+    plugins: [ htmlExtract, cssExtract ],
+}</code></pre><p>What you see above is the <i>webpack.config.js</i> used for this page; Webpack looks for this file straight away when building, and the file must export an object containing all configuration.</p><p>Now let's see what each part does. Let's skip the requires for a moment and start here:</p><pre><code>entry: {
+    home: "./views/home.pug",
+    webpack: "./views/webpack.pug",
+    process: "./views/process.pug",
+    tools: "./views/tools.pug",
+    style: "./style/main.less",
+},
+output: {
+    path: path.join(__dirname,"build"),
+    filename: "[name].js",
+},</code></pre><p>This is where we set input and output (Step 1.). All pages are included as <i>pug</i> files, and there's the <i>Less</i> file as well, so we're telling we want Webpack to go through all these files and work individually with them.</p><p>Now, output has two properties: <code>path</code> and <code>filename</code>. The first tells Webpack where to insert the built files; <code>path.join</code> comes from that <code>const path = require('path')</code> at the very beginning, which calls the internal Node.js <i>path</i> module. That <code>[name</code>] in the filename is a wildcard Webpack can use in the filename of each output when there are multiple entries; in this case, <i>[name</i>] is the name of each property on the <code>entry</code> object. There are other wildcards as well, but for our purposes <i>[name</i>] is enough.</p><pre><code>module: {
+    rules: [
+        ...
+    ]
+}</code></pre><p>Here, <code>rules</code> will receive a pair of condition and execution for each type of module (in this case, we'll have two pairs, one for Pug files and one for Less files, but we could have more if we needed).</p><pre><code>{
+    test: /\.less$/,
+    use: cssExtract.extract({
+        use: ['css-loader','postcss-loader','less-loader'],
+    })
+},
+{
+    test: /\.pug$/,
+    use: htmlExtract.extract({
+        use: ['html-loader?attrs=false', 'pug-html-loader'],
+    }),
+}</code></pre><p>As I said, we have two objects, one for Less and one for Pug. <code>test</code> receives a regular expression that matches all files inside the project that end with <i>.less</i> and <i>.pug</i>.</p><p><code>use</code> is responsible for telling Webpack what to do with files that pass the test, usually by giving it a list of loaders. Now, for the (seemingly) complicated part: <code>cssExtract</code> and <code>htmlExtract</code> were defined in the beginning as instances of the <code>Extract</code> prototype, that in turn is a require of a plugin called <i>Extract-text-webpack-plugin</i>. What it does is allow you to extract files from their Javascript intended outputs (that would be step 2.), and it works by wrapping the loader list in the <code>.extract()</code> method. Actually, we could just use <code>Extract.extract()</code> for both cases instead, but since we have already two instances, it makes for more intuitive code that we use them, even if the result is the same.</p><p>Now that's out of the way (for now), we can look at the loaders themselves. Loaders parse the input files given and do all sorts of stuff. In our case, <i>less-loader</i> and <i>pug-html-loader</i> convert the input to valid CSS and HTML, and <i>css-loader</i> and <i>html-loader</i> export the respective resources while interpreting their versions of imports (e.g. CSS <code>@import</code> and <code>img</code> HTML tags). <i>postcss-loader</i> is the responsible for vendor prefixing the CSS through the PostCSS software, and the prefixing utility itself is configured in a separate file used by PostCSS.</p><p><code>?attrs=false</code> is a query parameter fed to <i>html-loader</i> to stop it from trying to import the image (the Webpack logo at the header) as a Javascript import instead of leaving it alone. I chose a more typical path for this, inserting the image inside the build folder.</p><pre><code>plugins: [ htmlExtract, cssExtract ],</code></pre><p>Finally, <code>htmlExtract</code> and <code>cssExtract</code> are invoked. They're responsible for generating the final CSS/HTML assets, the way they were declared:</p><pre><code>const cssExtract = new Extract("styles.css");
+const htmlExtract = new Extract("[name].html");</code></pre><p>The strings are the filenames of the resources built in the end.</p><h3>Aftermath</h3><p>Our build folder will look like this:</p><pre><code>|_ build
+  |_ assets
+    |_ wpicon.png
+  |_ home.html
+  |_ home.js
+  |_ process.html
+  |_ process.js
+  |_ tools.html
+  |_ tools.js
+  |_ webpack.html
+  |_ webpack.js
+  |_ style.css
+  |_ style.js</code></pre><p>As mentioned before, you'll end up with unintended Javascript files, but they really do nothing. You can delete them at will, or at least not use them. There's also this <a href="http://stackoverflow.com/a/39401288/5026708">wildly unofficial tool</a> that automates this step.</p><h3>That's it?</h3><p>Indeed, that's it. However, you might want to take some extra steps when working in large projects! For example, here we have no distinction between production and development environments, however, Webpack has indeed the power to differentiate the two and have separate configs for each environment. So, for example, you might use <a href="https://github.com/webpack/webpack-dev-server">Webpack Dev Server</a> for automatic browser reloading, <a href="http://eslint.org/">ESLint</a> for error checking and <a href="https://mochajs.org/">Mocha</a> for testing.</p></main><footer><p>2017 Rafael Ferreira</p></footer></div></body></html>

@@ -1,0 +1,142 @@
+html {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+html body {
+  height: 100%;
+  margin: 0;
+}
+html body .container {
+  min-height: 100%;
+  position: relative;
+  padding-bottom: 30px;
+}
+header {
+  background-color: #a5cee1;
+  height: 150px;
+  margin: 0;
+  border-radius: 0 0 25px 25px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  color: white;
+  font-family: "Segoe UI";
+  font-weight: bold;
+  font-size: 2em;
+}
+header .headcontent {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+footer {
+  position: absolute;
+  bottom: 0;
+  padding-bottom: 8px;
+  width: 100%;
+  height: 30px;
+  background-color: #036;
+  color: white;
+  font-family: "Arial", sans-serif;
+  font-size: 0.8em;
+  font-style: oblique;
+  text-align: center;
+}
+footer p {
+  margin-bottom: 0;
+}
+footer p {
+  padding: 4px;
+}
+main {
+  margin: 3em 8px;
+  font-family: "Century Gothic", sans-serif;
+  line-height: 1.4em;
+}
+main a {
+  text-decoration: none;
+  color: #3f687b;
+}
+main a:visited {
+  color: #004b72;
+}
+main a:hover {
+  color: #004b72;
+  background-color: #a5cee1;
+  padding: 3px;
+  border-radius: 4px;
+}
+main h1,
+main h2,
+main h3,
+main h4,
+main h5,
+main h6 {
+  font-variant: small-caps;
+}
+main pre {
+  overflow: auto;
+  background-color: #445;
+  border-radius: 4px;
+  padding: 1em;
+}
+main pre code {
+  color: #eef;
+}
+nav {
+  background-color: white;
+}
+nav ul {
+  display: block;
+}
+@media (min-width: 700px) {
+  nav ul {
+    padding-left: .5em;
+  }
+}
+@media (min-width: 700px) and (min-width: 800px) {
+  nav ul {
+    padding-right: 12em;
+  }
+}
+nav ul li {
+  display: inline;
+  margin-bottom: 1.2em;
+  margin-right: .5em;
+  text-align: center;
+  list-style: none;
+}
+nav ul li a {
+  color: white;
+  background-color: #62b1d8;
+  border-radius: 4px;
+  padding: 8px;
+  font-family: "Segoe UI", sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+  text-decoration: none;
+}
+nav ul li a:hover {
+  background-color: black;
+  color: #a5cee1;
+  -webkit-transition: all linear .2s;
+  transition: all linear .2s;
+}
+nav ul li a.mainTab {
+  background-color: #f68;
+}
+nav ul li a.mainTab:hover {
+  background-color: black;
+  color: #f68;
+}

@@ -1,0 +1,72 @@
+<!DOCTYPE html><html><head><title>Webpack Works!</title><link rel="stylesheet" href="styles.css"></head><body><div class="container"><header><div class="headcontent"><img src="assets/wpicon.png" width="150px" height="150px"> <span>Webpack Works!</span></div></header><nav><ul><li><a href="home.html">Home</a></li><li><a href="webpack.html">Web..what?</a></li><li><a href="tools.html">The tools</a></li><li><a class="mainTab" href="process.html">The process</a></li></ul></nav><main><h1>The helper tools</h1><h3>Less preprocessor</h3><p><a href="http://lesscss.org/">Less</a> takes (almost) everything that you miss in CSS and implements it. You can use nesting, variables, conditionals, and much more. Take, for example, the code used for the navigation buttons:</p><pre><code>nav {
+    background-color: white;
+
+    ul {
+        display: block;
+
+        @media (min-width: 700px) {
+            padding-left: .5em;
+
+            @media (min-width: 800px) {
+                padding-right: 12em;
+            }
+        }
+
+        li {
+            display: inline;
+            margin-bottom: 1.2em;
+            margin-right: .5em;
+            text-align: center;
+
+            list-style: none;
+
+            a {
+                // Item appearance
+                color: white;
+                background-color: @wpblue2;
+                border-radius: 4px;
+                padding: 8px;
+                font-family: "Segoe UI",sans-serif;
+                font-weight: bold;
+                font-size: 1.5em;
+                text-decoration: none;
+                &:hover {
+                    background-color: black;
+                    color: @wpblue1;
+                    transition: all linear .2s;
+                }
+
+                &.mainTab {
+                    background-color: @mainred;
+                    &:hover {
+                        background-color: black;
+                        color: @mainred;
+                    }
+                }
+
+            }
+        }
+    }
+}</code></pre><p>Nesting means you won't have to write <code>ul {}</code> and <code>ul li {}</code> and <code>ul li a {}</code>, you can just nest them in a logical manner as <code>ul { li { a { } } }</code>. You can also see things like <code>@wpblue1</code>, which are variables (defined in another Less file).</p><h3>Autoprefixer</h3><p>When experimental CSS features were implemented in a web browser, the properties were frequently included in the engine prefixed by the respective browser vendors, until it is standardized. <a href="https://github.com/postcss/autoprefixer">Autoprefixer</a> parses your CSS (thus, it's used AFTER Less) and automatically inserts vendor prefixed properties when adequate; that lets you enjoy some additional compatibility with legacy versions that used these properties when they were experimental (thus applying these vendor prefixes).</p><p>Autoprefixer is part of the <a href="https://github.com/postcss/postcss">PostCSS</a> ecosystem, which is by itself a framework for many other styling-related add-ons.</p><h3>Pug templates</h3><p>Even more exciting is <a href="https://pugjs.org">Pug</a>. First, take a look at how the files are organized:</p><pre><code>|_ views
+  |_ default.pug
+  |_ home.pug
+  |_ process.pug
+  |_ tools.pug
+  |_ webpack.pug</code></pre><p>As HTML imports are, amazingly, not a thing yet between browsers, it's reassuring that you can use Pug templates for composition. Here, <i>default.pug</i> contains all (soon to be) HTML shared by all pages, and the other template files are the individual content.</p><p>That's not the only great thing about Pug. Have a look at the default.pug file and understand how its syntatical sugar is enough to make you diabetic:</p><pre><code>doctype html
+html
+  head
+    title Webpack Works!
+    link(rel="stylesheet" href="styles.css")
+  body
+    .container
+      header: .headcontent #[img(src="assets/wpicon.png" width="150px" height="150px")] #[span Webpack Works!]
+      nav
+        ul
+          li: a(href="home.html") Home
+          li: a(href="webpack.html") Web..what?
+          li: a(href="tools.html") The tools
+          li: a(class="mainTab" href="process.html") The process
+      main
+        block content
+      footer
+        p 2017 Rafael Ferreira</code></pre><p><code>block content</code> is where the individual content is inserted.</p><h3>Other possibilities</h3><p>So, that's all I used in this page, but depending on what you need, there's no shortage of various tools to be used in your project. For example, if I used Javascript, I could use loaders for <a href="http://www.typescriptlang.org/">Typescript</a> or <a href="http://coffeescript.org/">Coffeescript</a>, as well as <a href="https://babeljs.io/">Babel</a> for polyfilling; if I used more of PostCSS, I could be using maybe <a href="http://cssnext.io/">CSSNext</a>, which polyfills future CSS specifications.</p></main><footer><p>2017 Rafael Ferreira</p></footer></div></body></html>

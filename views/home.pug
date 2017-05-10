@@ -1,0 +1,12 @@
+extends default.pug
+
+block content
+  h3 What is this?
+  p This page was created to showcase Webpack's capabilities by describing the process used to create this simple page (which is, of course, built with Webpack), so it's more than anything a basic exposition on the process of using Webpack in web page development. This page, as you can see, is nothing special, but even for cases like this Webpack is helpful for organizing your workflow and also allowing you to create faster and safer.
+  p Since Webpack isn't a front-end utility, you'll just have to trust me as I explain how this page is built. Indeed, those pages could be done without the help of any third-party tool, but Webpack makes it so much easier.
+  h3 What this is not?
+  p This is #[b not] a tutorial or guide on Webpack, although it may be a good introduction. If you want a complete guide, #[a(href="https://survivejs.com/webpack/") this] might be of your interest.
+  p This is also not made as publicity for Webpack, although it would be neat if more people come to know this great tool because of this. I plan to make other pages like this about other tools in the future.
+  h3 So, what is going on here?
+  p Here, Webpack acts as a wrapper for the #[a(href="http://lesscss.org/") Less] and #[a(href="https://pugjs.org") Pug] preprocessors, that were used to respectively build CSS and HTML for these pages you're seeing. Additionally, it's also using #[a(href="https://github.com/postcss/autoprefixer") Autoprefixer] inside #[a(href="https://github.com/postcss/postcss") PostCSS], to automatically add vendor prefixes for further browser compatibility. This document intends to showcase Webpack and not those tools (maybe some time in the future I'll make a showcase for each of them!), so explanation on what they do will be brief and general; read about that #[a(href="tools.html") here]. What is important to understand is that Webpack can use them to help you.
+  p To understand how Webpack was used to build this page, #[a(href="process.html") follow me!]. If you want to look deeper, check the repo!

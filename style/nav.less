@@ -1,0 +1,52 @@
+nav {
+    background-color: white;
+
+    ul {
+        display: block;
+
+        @media (min-width: 700px) {
+            // display: flex;
+            // justify-content: space-around;
+            padding-left: .5em;
+
+            @media (min-width: 800px) {
+                padding-right: 12em;
+            }
+        }
+
+        li {
+            display: inline;
+            margin-bottom: 1.2em; // For mobile mainly
+            margin-right: .5em;
+            text-align: center;
+
+            list-style: none; // Remove bullets
+
+            a {
+                // Item appearance
+                color: white;
+                background-color: @wpblue2;
+                border-radius: 4px;
+                padding: 8px;
+                font-family: "Segoe UI",sans-serif;
+                font-weight: bold;
+                font-size: 1.5em;
+                text-decoration: none;
+                &:hover {
+                    background-color: black;
+                    color: @wpblue1;
+                    transition: all linear .2s;
+                }
+
+                &.mainTab {
+                    background-color: @mainred;
+                    &:hover {
+                        background-color: black;
+                        color: @mainred;
+                    }
+                }
+
+            }
+        }
+    }
+}

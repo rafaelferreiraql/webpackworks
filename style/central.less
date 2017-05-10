@@ -1,0 +1,35 @@
+main {
+    // Container display
+    margin: 3em 8px;
+
+    // Text appearance
+    font-family: "Century Gothic", sans-serif;
+    line-height: 1.4em;
+    a {
+        text-decoration: none;
+        color: @wpblue1 - #666;
+        &:visited {
+            color: @wpblue2 - #666;
+        }
+        &:hover {
+            color: @wpblue2 - #666;
+            background-color: @wpblue1;
+            padding: 3px;
+            border-radius: 4px;
+        }
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-variant: small-caps;
+    }
+
+    pre {
+        overflow: auto;
+        background-color: @codebg;
+        border-radius: 4px;
+        padding: 1em;
+        code {
+            color: @codetext;
+        }
+    }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "webpack-works",
+  "version": "1.0.0",
+  "description": "Showcase of basic Webpack capability",
+  "main": "scripts/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --env production",
+    "dev": "webpack-dev-server --env development",
+    "watch": "webpack --env production --watch"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "autoprefixer": "^7.0.1",
+    "css-loader": "^0.28.1",
+    "extract-text-webpack-plugin": "^2.1.0",
+    "html-loader": "^0.4.5",
+    "less": "^2.7.2",
+    "less-loader": "^4.0.3",
+    "postcss": "^6.0.1",
+    "postcss-loader": "^2.0.3",
+    "pug": "^2.0.0-rc.1",
+    "pug-html-loader": "^1.1.4",
+    "pug-loader": "^2.3.0",
+    "style-loader": "^0.17.0",
+    "webpack": "^2.5.0",
+    "webpack-dev-server": "^2.4.5"
+  }
+}

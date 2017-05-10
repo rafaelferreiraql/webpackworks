@@ -1,0 +1,131 @@
+extends default
+
+block content
+  h2 Building a page with Webpack
+  h3 Basics
+  p First, it's important to understand how Webpack works. Webpack is essentially a Javascript tool, so everything it consumes to produce your build, sooner or later, is thrown into Javascript before being spat out.
+  p What it does is get one or more input files, follow each file's logical string of imports (be it CommonJS requires or ES6 imports), and then bundle those imports in a single file for each entry as output. Check this code, for example:
+  pre: code.
+    // module.js
+    module.exports = "Hello";
+
+    // main.js
+    let greeting = require("./module.js");
+    console.log(greeting,"Warudo!");
+
+  p Usually, when working with multiple JS files in client-side, 1. You wouldn't use imports, since browsers don't support it, you would use globals or functions for communicating instead and 2. You'd have to include every single file in a #{"<script>"} tag; no big deal in this example, but think about a large web app with tens of files, not only it would be uncomfortable having to insert all those script tags, but it would also mean you'd have tons of requests on your server, so an alternative would be welcome. Here, if you feed #[code main.js] to Webpack, it'll find #[code module.js] as well, since it's required by the former. Those two files are, then, bundled in a single JS file you can include in your page, so it solves all problems mentioned above.
+  p However, it doesn't stop there: it can also individually work with every file imported, provided you have the necessary loader. In our case, even though we won't work with actual Javascript files, we can still manipulate our Less and Pug files to insert them in Javascript form before being bundled as CSS and HTML. The actual process goes as follows:
+  ol
+    li All Pug files representing their own page are attached as input files, plus one Less file that imports all of the others (because you can make Webpack understand CSS imports as well, with the correct loader). Each is set to have a respective JS output;
+    li Since we want HTML/CSS and not JS, files are separated from the Javascript they would end up in;
+    li The preprocessors act on the files, converting them into valid HTML and CSS;
+    li On the CSS side, there's an extra step to add vendor prefixes to the generated CSS;
+    li Webpack then uses respective loaders to know when it's dealing with HTML and CSS;
+    li Files are built. Along with the files you generated, the original JS files you set as output are also created as they're part of the process, but theyll do nothing in them because their meaningful contents have been previously extracted.
+  h3 Configuration
+  p Now that you know what is going on, it's time to figure out how you and Webpack will work together to achieve this result. Have a look at this configuration file (no need to stare at it until it stares back, I'll break it down bit by bit):
+  pre: code.
+    const path = require('path');
+    const Extract = require('extract-text-webpack-plugin');
+
+    const cssExtract = new Extract("styles.css");
+    const htmlExtract = new Extract("[name].html");
+
+    module.exports = {
+        entry: {
+            home: "./views/home.pug",
+            webpack: "./views/webpack.pug",
+            process: "./views/process.pug",
+            tools: "./views/tools.pug",
+            style: "./style/main.less",
+        },
+        output: {
+            path: path.join(__dirname,"build"),
+            filename: "[name].js",
+        },
+
+        module: {
+            rules: [
+                {
+                    test: /\.less$/,
+                    use: Extract.extract({
+                        use: ['css-loader','postcss-loader','less-loader'],
+                    })
+                },
+                {
+                    test: /\.pug$/,
+                    use: Extract.extract({
+                        use: ['html-loader?attrs=false','pug-html-loader'],
+                    }),
+                },
+            ],
+        },
+
+        plugins: [ htmlExtract, cssExtract ],
+    }
+  p What you see above is the #[i webpack.config.js] used for this page; Webpack looks for this file straight away when building, and the file must export an object containing all configuration.
+  p Now let's see what each part does. Let's skip the requires for a moment and start here:
+  pre: code.
+      entry: {
+          home: "./views/home.pug",
+          webpack: "./views/webpack.pug",
+          process: "./views/process.pug",
+          tools: "./views/tools.pug",
+          style: "./style/main.less",
+      },
+      output: {
+          path: path.join(__dirname,"build"),
+          filename: "[name].js",
+      },
+  p This is where we set input and output (Step 1.). All pages are included as #[i pug] files, and there's the #[i Less] file as well, so we're telling we want Webpack to go through all these files and work individually with them.
+  p Now, output has two properties: #[code path] and #[code filename]. The first tells Webpack where to insert the built files; #[code path.join] comes from that #[code const path = require('path')] at the very beginning, which calls the internal Node.js #[i path] module. That #[code [name]] in the filename is a wildcard Webpack can use in the filename of each output when there are multiple entries; in this case, #[i [name]] is the name of each property on the #[code entry] object. There are other wildcards as well, but for our purposes #[i [name]] is enough.
+  pre: code.
+    module: {
+        rules: [
+            ...
+        ]
+    }
+  p Here, #[code rules] will receive a pair of condition and execution for each type of module (in this case, we'll have two pairs, one for Pug files and one for Less files, but we could have more if we needed).
+  pre: code.
+    {
+        test: /\.less$/,
+        use: cssExtract.extract({
+            use: ['css-loader','postcss-loader','less-loader'],
+        })
+    },
+    {
+        test: /\.pug$/,
+        use: htmlExtract.extract({
+            use: ['html-loader?attrs=false', 'pug-html-loader'],
+        }),
+    }
+  p As I said, we have two objects, one for Less and one for Pug. #[code test] receives a regular expression that matches all files inside the project that end with #[i .less] and #[i .pug].
+  p #[code use] is responsible for telling Webpack what to do with files that pass the test, usually by giving it a list of loaders. Now, for the (seemingly) complicated part: #[code cssExtract] and #[code htmlExtract] were defined in the beginning as instances of the #[code Extract] prototype, that in turn is a require of a plugin called #[i Extract-text-webpack-plugin]. What it does is allow you to extract files from their Javascript intended outputs (that would be step 2.), and it works by wrapping the loader list in the #[code .extract()] method. Actually, we could just use #[code Extract.extract()] for both cases instead, but since we have already two instances, it makes for more intuitive code that we use them, even if the result is the same.
+  p Now that's out of the way (for now), we can look at the loaders themselves. Loaders parse the input files given and do all sorts of stuff. In our case, #[i less-loader] and #[i pug-html-loader] convert the input to valid CSS and HTML, and #[i css-loader] and #[i html-loader] export the respective resources while interpreting their versions of imports (e.g. CSS #[code @import] and #[code img] HTML tags). #[i postcss-loader] is the responsible for vendor prefixing the CSS through the PostCSS software, and the prefixing utility itself is configured in a separate file used by PostCSS.
+  p #[code ?attrs=false] is a query parameter fed to #[i html-loader] to stop it from trying to import the image (the Webpack logo at the header) as a Javascript import instead of leaving it alone. I chose a more typical path for this, inserting the image inside the build folder.
+  pre: code.
+    plugins: [ htmlExtract, cssExtract ],
+  p Finally, #[code htmlExtract] and #[code cssExtract] are invoked. They're responsible for generating the final CSS/HTML assets, the way they were declared:
+  pre: code.
+    const cssExtract = new Extract("styles.css");
+    const htmlExtract = new Extract("[name].html");
+  p The strings are the filenames of the resources built in the end.
+  h3 Aftermath
+  p Our build folder will look like this:
+  pre: code.
+    |_ build
+      |_ assets
+        |_ wpicon.png
+      |_ home.html
+      |_ home.js
+      |_ process.html
+      |_ process.js
+      |_ tools.html
+      |_ tools.js
+      |_ webpack.html
+      |_ webpack.js
+      |_ style.css
+      |_ style.js
+  p As mentioned before, you'll end up with unintended Javascript files, but they really do nothing. You can delete them at will, or at least not use them. There's also this #[a(href="http://stackoverflow.com/a/39401288/5026708") wildly unofficial tool] that automates this step.
+  h3 That's it?
+  p Indeed, that's it. However, you might want to take some extra steps when working in large projects! For example, here we have no distinction between production and development environments, however, Webpack has indeed the power to differentiate the two and have separate configs for each environment. So, for example, you might use #[a(href="https://github.com/webpack/webpack-dev-server") Webpack Dev Server] for automatic browser reloading, #[a(href="http://eslint.org/") ESLint] for error checking and #[a(href="https://mochajs.org/") Mocha] for testing.
