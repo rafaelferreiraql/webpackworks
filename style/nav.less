@@ -8,14 +8,16 @@ nav {
             // display: flex;
             // justify-content: space-around;
             padding-left: .5em;
-
-            @media (min-width: 800px) {
-                padding-right: 12em;
-            }
+        }
+        @media (min-width: 800px) {
+            padding-right: 12em;
         }
 
         li {
-            display: inline;
+            display: block;
+            @media (min-width: 600px) {
+                display: inline;
+            }
             margin-bottom: 1.2em; // For mobile mainly
             margin-right: .5em;
             text-align: center;
@@ -27,7 +29,10 @@ nav {
                 color: white;
                 background-color: @wpblue2;
                 border-radius: 4px;
+                flex-grow: 1;
                 padding: 8px;
+
+
                 font-family: "Segoe UI",sans-serif;
                 font-weight: bold;
                 font-size: 1.5em;
